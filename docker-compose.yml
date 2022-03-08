@@ -1,0 +1,11 @@
+version: "1.0"
+
+services:
+  broker:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    image:
+    container_name: "broker-message"
+    ports:
+      - "8001:8001"
