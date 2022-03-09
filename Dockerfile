@@ -1,5 +1,8 @@
 #background image
-FROM ubuntu:20.04
+FROM golang:1.17-alpine
+
+RUN apk add --no-cache go
+RUN go version
 
 #get and install packages
 RUN go get -d -v ./...
