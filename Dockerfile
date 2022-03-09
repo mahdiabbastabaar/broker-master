@@ -1,5 +1,6 @@
 #background image
-FROM golang:1.17-alpine
+#FROM golang:1.17-alpine
+FROM docker:dind
 
 RUN apk add --no-cache go
 RUN go version

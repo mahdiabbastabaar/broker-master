@@ -1,0 +1,17 @@
+{
+	"ulid": "01FXFN1TSFTWKXFGS27PTHQ7RW",
+	"minTime": 1646560802178,
+	"maxTime": 1646568000000,
+	"stats": {
+		"numSamples": 193920,
+		"numSeries": 808,
+		"numChunks": 1616
+	},
+	"compaction": {
+		"level": 1,
+		"sources": [
+			"01FXFN1TSFTWKXFGS27PTHQ7RW"
+		]
+	},
+	"version": 1
+}

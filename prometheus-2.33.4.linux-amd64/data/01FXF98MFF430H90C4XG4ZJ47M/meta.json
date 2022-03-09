@@ -1,0 +1,17 @@
+{
+	"ulid": "01FXF98MFF430H90C4XG4ZJ47M",
+	"minTime": 1646548442178,
+	"maxTime": 1646553600000,
+	"stats": {
+		"numSamples": 135074,
+		"numSeries": 814,
+		"numChunks": 814
+	},
+	"compaction": {
+		"level": 1,
+		"sources": [
+			"01FXF98MFF430H90C4XG4ZJ47M"
+		]
+	},
+	"version": 1
+}
