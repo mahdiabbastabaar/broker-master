@@ -1,12 +1,19 @@
-version: "3.9"
+version: "3.8"
 
 services:
   broker:
-    build:
-      dockerfile: Dockerfile
-      context: .
-    image: broker
     container_name: "broker-message"
+    image: broker
     ports:
       - "8001:8001"
 
+  prometheus:
+    container_name: "prometheus"
+    #image:
+    ports:
+      - "9090:9090"
+
+  grafana:
+    container_name: "grafana"
+    ports:
+      - "3000:3000"
