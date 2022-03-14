@@ -11,24 +11,21 @@ services:
     container_name: "prometheus"
     image: prom/prometheus:latest
     ports:
-      - "9090:9090"
+      - "9595:9090"
+    volumes:
+      - ./prometheus-2.33.4.linux-amd64/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./data/prometheus:/etc/prometheus/
     restart: unless-stopped
-    links:
-      - node-exporter
-      - broker
+#    links:
+#      - broker
 
   grafana:
     container_name: "grafana"
     image: grafana/grafana:latest
     ports:
-      - "3000:3000"
+      - "3001:3000"
+    volumes:
+      - ./data/grafana:/etc/grafana1/
     restart: unless-stopped
-    links:
-      - prometheus
-
-  node-exporter:
-    container_name: "node-exporter"
-    image: prom/node-exporter:latest
-    ports:
-      - "9100:9100"
-    restart: unless-stopped
+#    links:
+#      - prometheus
