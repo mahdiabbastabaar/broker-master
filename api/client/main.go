@@ -1,8 +1,8 @@
 package main
 
 import (
-	"context"
 	"fmt"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -14,7 +14,7 @@ import (
 func main() {
 	var wg sync.WaitGroup
 
-	dial, err := grpc.Dial("localhost:8001", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	dial, err := grpc.Dial(":8001", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatal("could not connect!\n", err)
 	}

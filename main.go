@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
@@ -69,6 +70,8 @@ func main() {
 	api.FailedRPCCalls = FailedRPCCalls
 	api.EachCallDuration = EachCallDuration
 	api.ActiveSubscribers = ActiveSubscribers
+
+	fmt.Println("================= Server ===================")
 
 	ls, err := net.Listen("tcp", "localhost:8001")
 	if err != nil {

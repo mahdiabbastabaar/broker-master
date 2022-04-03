@@ -3,7 +3,7 @@ version: "3.9"
 services:
   broker:
     container_name: "broker-message"
-    image: broker
+    image: broker:latest
     ports:
       - "8001:8001"
 
