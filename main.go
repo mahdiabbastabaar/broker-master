@@ -73,12 +73,12 @@ func main() {
 
 	fmt.Println("================= Server ===================")
 
-	ls, err := net.Listen("tcp", "localhost:8001")
+	ls, err := net.Listen("tcp", ":8001")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	httpServer := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{}), Addr: "localhost:9091"}
+	httpServer := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{}), Addr: ":9091"}
 
 	go func() {
 		if err = httpServer.ListenAndServe(); err != nil {

@@ -6,12 +6,13 @@ services:
     image: broker:latest
     ports:
       - "8001:8001"
+      - "9091:9091"
 
   prometheus:
     container_name: "prometheus"
     image: prom/prometheus:latest
     ports:
-      - "9595:9090"
+      - "9095:9090"
     volumes:
       - ./prometheus-2.33.4.linux-amd64/prometheus.yml:/etc/prometheus/prometheus.yml
       - ./data/prometheus:/etc/prometheus/
@@ -23,9 +24,15 @@ services:
     container_name: "grafana"
     image: grafana/grafana:latest
     ports:
-      - "3001:3000"
+      - "3000:3000"
     volumes:
       - ./data/grafana:/etc/grafana1/
     restart: unless-stopped
 #    links:
 #      - prometheus
+
+#  postgres:
+#    container_name: "postgresql"
+#    image: postgres:latest
+#    ports:
+#      - "5432:5432"
