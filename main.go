@@ -1,7 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	_ "github.com/lib/pq"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
@@ -17,6 +19,14 @@ import (
 // 2. Your logs should be accessible in Graylog
 // 3. Basic prometheus metrics ( latency, throughput, etc. ) should be implemented
 // 	  for every base functionality ( publish, subscribe etc. )
+
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "mahdi"
+	password = "1234"
+	dbname   = "mydb"
+)
 
 var (
 	reg = prometheus.NewRegistry()
@@ -72,6 +82,29 @@ func main() {
 	api.ActiveSubscribers = ActiveSubscribers
 
 	fmt.Println("================= Server ===================")
+
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal("0\n", err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("1\n", err)
+	}
+
+	fmt.Println("================= Server2 ===================")
+
+	tableInfo := `CREATE TABLE publish ()`
+	_, err = db.Exec(tableInfo)
+	if err != nil {
+		log.Fatal("2\n", err)
+	}
 
 	ls, err := net.Listen("tcp", ":8001")
 	if err != nil {
