@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"therealbroker/api/api"
 	"therealbroker/api/api/proto"
+	"time"
 )
 
 // Main requirements:
@@ -21,11 +22,11 @@ import (
 // 	  for every base functionality ( publish, subscribe etc. )
 
 const (
-	host     = "localhost"
+	host     = "postgres"
 	port     = 5432
 	user     = "mahdi"
 	password = "1234"
-	dbname   = "mydb"
+	dbname   = "broker"
 )
 
 var (
@@ -76,6 +77,8 @@ func init() {
 
 func main() {
 
+	time.Sleep(5 * time.Second)
+
 	api.SuccessfulRPCCalls = SuccessfulRPCCalls
 	api.FailedRPCCalls = FailedRPCCalls
 	api.EachCallDuration = EachCallDuration
@@ -95,27 +98,29 @@ func main() {
 
 	err = db.Ping()
 	if err != nil {
-		log.Fatal("1\n", err)
+		log.Fatal("12\n", err)
 	}
 
 	fmt.Println("================= Server2 ===================")
 
-	tableInfo := `CREATE TABLE publish ()`
-	_, err = db.Exec(tableInfo)
+	//tableInfo := `CREATE TABLE publish ( ID INT, MESSAGE message_text)`
+	_, err = db.Exec(`CREATE TABLE publish ( SUBJECT TEXT,NAME TEXT, ID INT, MESSAGE TEXT)`)
 	if err != nil {
 		log.Fatal("2\n", err)
 	}
 
 	ls, err := net.Listen("tcp", ":8001")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("13", err)
 	}
+
+	fmt.Println("================= Server3 ===================")
 
 	httpServer := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{}), Addr: ":9091"}
 
 	go func() {
 		if err = httpServer.ListenAndServe(); err != nil {
-			log.Fatal(err)
+			log.Fatal("14", err)
 		}
 	}()
 
@@ -123,7 +128,7 @@ func main() {
 	proto.RegisterBrokerServer(gs, api.NewModule())
 
 	if err = gs.Serve(ls); err != nil {
-		log.Fatal(err)
+		log.Fatal("15", err)
 	}
 
 }

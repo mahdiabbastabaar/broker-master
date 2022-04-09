@@ -1,3 +1,3 @@
 docker-compose down
-sudo service postgresql stop
+#sudo service postgresql stop
 rm -f ./main

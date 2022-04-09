@@ -2,7 +2,6 @@ package broker
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"sync"
 	"therealbroker/pkg/broker"
@@ -45,17 +44,17 @@ func (m *Module) Publish(ctx context.Context, subject string, msg broker.Message
 	s := m.getSubjectByName(subject)
 
 	mu.Lock()
-	defer mu.Unlock()
-
+	//defer mu.Unlock()
+	//TODO
 	s.messages[msg] = time.Now()
 
 	for _, r := range s.subscribers {
 		r <- msg
-		fmt.Println(len(s.subscribers))
+		//fmt.Println(len(s.subscribers))
 	}
 
 	m.subjects = append(m.subjects, s)
-
+	mu.Unlock()
 	s.idCounter++
 	msg.Id = s.idCounter
 
@@ -67,6 +66,10 @@ func (m *Module) Subscribe(ctx context.Context, subject string) (<-chan broker.M
 		return nil, broker.ErrUnavailable
 	}
 	s := m.getSubjectByName(subject)
+
+	mu.Lock()
+	defer mu.Unlock()
+
 	ch := make(chan broker.Message, 100)
 	s.subscribers = append(s.subscribers, ch)
 	m.subjects = append(m.subjects, s)
@@ -78,6 +81,10 @@ func (m *Module) Fetch(ctx context.Context, subject string, id int) (broker.Mess
 		return broker.Message{}, broker.ErrUnavailable
 	}
 	s := m.getSubjectByName(subject)
+
+	mu.Lock()
+	defer mu.Unlock()
+
 	//TODO optimize searching
 	for msg, t := range s.messages {
 		duration := time.Since(t)

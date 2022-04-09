@@ -10,17 +10,19 @@ services:
     depends_on:
       - postgres
 
+
   prometheus:
     container_name: "prometheus"
     image: prom/prometheus:latest
     ports:
-      - "9095:9090"
+      - "9090:9090"
     volumes:
-      - ./prometheus-2.33.4.linux-amd64/prometheus.yml:/etc/prometheus/prometheus.yml
       - ./data/prometheus:/etc/prometheus/
     restart: unless-stopped
-#    links:
-#      - broker
+    links:
+      - broker:latest
+    depends_on:
+      - broker
 
   grafana:
     container_name: "grafana"
@@ -39,8 +41,8 @@ services:
     environment:
       POSTGRES_USER: mahdi
       POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: mydb
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      POSTGRES_DB: broker
+#    volumes:
+#      - ./data/postgres:/var/lib/postgresql/data
     ports:
       - "5432:5432"
