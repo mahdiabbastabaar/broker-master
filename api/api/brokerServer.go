@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/net/context"
 	"log"
@@ -22,9 +23,9 @@ type Broker struct {
 	broker broker2.Broker
 }
 
-func NewModule() proto.BrokerServer {
+func NewModule(db *sql.DB) proto.BrokerServer {
 	return &Broker{
-		broker: broker.NewModule(),
+		broker: broker.NewModule(db),
 	}
 }
 

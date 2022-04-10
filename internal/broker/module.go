@@ -2,6 +2,8 @@ package broker
 
 import (
 	"context"
+	"database/sql"
+	"log"
 	"strings"
 	"sync"
 	"therealbroker/pkg/broker"
@@ -9,6 +11,7 @@ import (
 )
 
 var mu sync.Mutex
+var psDb *sql.DB
 
 type Module struct {
 	subjects []*Subject
@@ -16,16 +19,25 @@ type Module struct {
 }
 
 type Subject struct {
-	name        string
-	messages    map[broker.Message]time.Time
-	idCounter   int
+	name string
+	//messages    map[broker.Message]time.Time
+	//idCounter   int
 	subscribers []chan broker.Message
 }
 
-func NewModule() broker.Broker {
+func NewModule(db *sql.DB) broker.Broker {
+	psDb = db
+	createTable()
 	return &Module{
 		subjects: make([]*Subject, 0),
 		isClosed: false,
+	}
+}
+
+func createTable() {
+	_, err := psDb.Exec(`CREATE TABLE IF NOT EXISTS messages (subject TEXT, id INT, message TEXT, times TIMESTAMP)`)
+	if err != nil {
+		log.Fatal("2\n", err)
 	}
 }
 
@@ -43,22 +55,35 @@ func (m *Module) Publish(ctx context.Context, subject string, msg broker.Message
 	}
 	s := m.getSubjectByName(subject)
 
+	sqlStmt1 := `INSERT INTO users (subject, id, message, time) VALUES ($1, $2, $3, $4) RETURNING id`
+	sqlStmt2 := `SELECT COUNT id FROM messages WHERE subject='subject';`
+
+	var id int
+	err := psDb.QueryRow(sqlStmt2).Scan(&id)
+
+	if err != nil {
+		log.Fatal("35\n", err)
+	}
+
+	if err != nil {
+		log.Fatal("23\n", err)
+	}
+
 	mu.Lock()
-	//defer mu.Unlock()
-	//TODO
-	s.messages[msg] = time.Now()
+
+	var finalId int
+	err = psDb.QueryRow(sqlStmt1, subject, int(id+1), msg, time.Now()).Scan(&finalId)
+	if err != nil {
+		panic(err)
+	}
 
 	for _, r := range s.subscribers {
 		r <- msg
 		//fmt.Println(len(s.subscribers))
 	}
-
 	m.subjects = append(m.subjects, s)
 	mu.Unlock()
-	s.idCounter++
-	msg.Id = s.idCounter
-
-	return msg.Id, nil
+	return finalId, nil
 }
 
 func (m *Module) Subscribe(ctx context.Context, subject string) (<-chan broker.Message, error) {
@@ -80,23 +105,29 @@ func (m *Module) Fetch(ctx context.Context, subject string, id int) (broker.Mess
 	if m.isClosed {
 		return broker.Message{}, broker.ErrUnavailable
 	}
-	s := m.getSubjectByName(subject)
+	//s := m.getSubjectByName(subject)
 
 	mu.Lock()
 	defer mu.Unlock()
 
-	//TODO optimize searching
-	for msg, t := range s.messages {
-		duration := time.Since(t)
-		if msg.Id == id {
-			if duration <= msg.Expiration {
-				return msg, nil
-			} else {
-				return broker.Message{}, broker.ErrExpiredID
-			}
-		}
+	sqlStmt := `SELECT message FROM messages WHERE subject='subject' AND id='id'`
+	var result string
+	err := psDb.QueryRow(sqlStmt).Scan(&result)
+	if err != nil {
+		log.Fatal("43\n", err)
 	}
-	return broker.Message{}, broker.ErrInvalidID
+	//for msg, t := range s.messages {
+	//	duration := time.Since(t)
+	//	if msg.Id == id {
+	//		if duration <= msg.Expiration {
+	//			return msg, nil
+	//		} else {
+	//			return broker.Message{}, broker.ErrExpiredID
+	//		}
+	//	}
+	//}
+	msg := broker.Message{Id: id, Body: result}
+	return msg, broker.ErrInvalidID
 }
 
 func (m *Module) getSubjectByName(name string) *Subject {
@@ -105,12 +136,9 @@ func (m *Module) getSubjectByName(name string) *Subject {
 			return s
 		}
 	}
-	mes := make(map[broker.Message]time.Time)
 	channels := make([]chan broker.Message, 0)
 	s := Subject{
 		name:        name,
-		messages:    mes,
-		idCounter:   0,
 		subscribers: channels,
 	}
 	return &s

@@ -103,12 +103,6 @@ func main() {
 
 	fmt.Println("================= Server2 ===================")
 
-	//tableInfo := `CREATE TABLE publish ( ID INT, MESSAGE message_text)`
-	_, err = db.Exec(`CREATE TABLE publish ( SUBJECT TEXT,NAME TEXT, ID INT, MESSAGE TEXT)`)
-	if err != nil {
-		log.Fatal("2\n", err)
-	}
-
 	ls, err := net.Listen("tcp", ":8001")
 	if err != nil {
 		log.Fatal("13", err)
@@ -125,7 +119,7 @@ func main() {
 	}()
 
 	gs := grpc.NewServer()
-	proto.RegisterBrokerServer(gs, api.NewModule())
+	proto.RegisterBrokerServer(gs, api.NewModule(db))
 
 	if err = gs.Serve(ls); err != nil {
 		log.Fatal("15", err)
